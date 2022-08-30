@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "apify": "^1.2.0",
+        "apify": "^2.3.0",
         "puppeteer": "*"
     },
     "scripts": {
