@@ -19,7 +19,7 @@ Read this (https://blog.apify.com/how-to-set-up-a-content-change-watchdog-for-an
 
 ## Input
 
-The actor needs a URL, content selector, and an email address. A screenshot selector can also be defined or, if not defined, the content selector is used for the screenshot.
+The actor needs a URL, content selector, and an email address. A screenshot selector can also be defined or, if not defined, the content selector is used for the screenshot. 
 
 For detailed input description please see the [Input page](https://apify.com/jakubbalada/content-checker).
 
