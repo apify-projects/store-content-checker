@@ -34,6 +34,8 @@ module.exports.screenshotDOMElement = async (page, selector, padding = 0) => {
             width: rect.width + padding * 2,
             height: rect.height + padding * 2,
         },
+        type: 'jpeg',
+        quality: 30,
     });
 };
 

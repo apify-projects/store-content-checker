@@ -5,6 +5,9 @@ const { testForBlocks } = require('./check-captchas');
 
 const { log, sleep } = Apify.utils;
 
+// 9 MB because of Apify input limit
+const MAX_ATTACHMENT_SIZE_BYTES = 9000000;
+
 Apify.main(async () => {
     const input = await Apify.getInput();
     validateInput(input);
@@ -85,7 +88,7 @@ Apify.main(async () => {
             try {
                 await testForBlocks(page);
             } catch (e) {
-                fullPageScreenshot = await page.screenshot({ fullPage: true });
+                fullPageScreenshot = await page.screenshot({ fullPage: true, type: 'jpeg', quality: 30 });
                 throw e;
             }
 
@@ -113,7 +116,7 @@ Apify.main(async () => {
             }
 
             if (errorHappened) {
-                fullPageScreenshot = await page.screenshot({ fullPage: true });
+                fullPageScreenshot = await page.screenshot({ fullPage: true, type: 'jpeg', quality: 30 });
                 if (retryStrategy === 'on-all-errors') {
                     const updatedMessage = `${errorMessage} Will retry...`;
                     throw updatedMessage;
@@ -177,21 +180,34 @@ Apify.main(async () => {
 
             // send mail
             log.info('Sending mail...');
+
+            const previousScreenshotBase64 = previousScreenshot.toString('base64');
+            const currentScreenshotBase64 = screenshotBuffer.toString('base64');
+
+            console.log(`previousScreenshotBase64: ${previousScreenshotBase64.length}`);
+            console.log(`currentScreenshotBase64: ${currentScreenshotBase64.length}`);
+
+            let text = `URL: ${url}\n\n${notificationNote}Previous data: ${previousData}\n\nCurrent data: ${content}`;
+            const attachments = [];
+            if (previousScreenshotBase64.length + currentScreenshotBase64.length < MAX_ATTACHMENT_SIZE_BYTES) {
+                attachments.push({
+                    filename: 'previousScreenshot.png',
+                    data: previousScreenshotBase64,
+                });
+                attachments.push({
+                    filename: 'currentScreenshot.png',
+                    data: currentScreenshotBase64,
+                });
+            } else {
+                log.warning(`Screenshots are bigger than ${MAX_ATTACHMENT_SIZE_BYTES}, not sending them as part of email attachment.`);
+                text += `\n\nScreenshots are bigger than ${MAX_ATTACHMENT_SIZE_BYTES}, not sending them as part of email attachment.`;
+            }
+
             await Apify.call('apify/send-mail', {
                 to: sendNotificationTo,
                 subject: 'Apify content checker - page changed!',
-                text: `URL: ${url}\n\n${notificationNote}Previous data: ${previousData}\n\nCurrent data: ${content}`,
-                attachments: [
-                    {
-                        filename: 'previousScreenshot.png',
-                        data: previousScreenshot.toString('base64'),
-                    },
-                    {
-                        filename: 'currentScreenshot.png',
-                        data: screenshotBuffer.toString('base64'),
-                    },
-                ],
-
+                text,
+                attachments,
             });
         }
     }
