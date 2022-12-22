@@ -1,28 +1,29 @@
-const Apify = require('apify');
+/* global $ */
+import { log } from 'apify';
 
-const { log } = Apify.utils;
+import type { Page } from 'puppeteer';
 
-const distilCaptcha = async (page) => {
+const distilCaptcha = async (page: Page) => {
     return page.evaluate(() => {
         return $('#distilCaptchaForm').length > 0 || $('[action*="distil_r_captcha.html"]').length > 0;
     });
 };
 
-const accessDenied = async (page) => {
+const accessDenied = async (page: Page) => {
     return page.evaluate(() => {
         return $('title').text().includes('Access Denied');
     });
 };
 
-const recaptcha = async (page) => {
+const recaptcha = async (page: Page) => {
     const { blocked, isCaptchaDisabled } = await page.evaluate(() => {
         const backGroundCaptchaEl = $('iframe[src*="/recaptcha/"]');
-        const isCaptchaDisabled = backGroundCaptchaEl.attr('style')
-            && backGroundCaptchaEl.attr('style').includes('display: none');
-        const isCaptchaActive = backGroundCaptchaEl.length > 0 && !isCaptchaDisabled;
+        const isCaptchaDisabledInEval = backGroundCaptchaEl.attr('style')
+            && backGroundCaptchaEl.attr('style')!.includes('display: none');
+        const isCaptchaActive = backGroundCaptchaEl.length > 0 && !isCaptchaDisabledInEval;
         return {
             blocked: $('#recaptcha').length > 0 || isCaptchaActive,
-            isCaptchaDisabled,
+            isCaptchaDisabled: isCaptchaDisabledInEval,
         };
     });
 
@@ -33,14 +34,14 @@ const recaptcha = async (page) => {
     return blocked;
 };
 
-module.exports.testForBlocks = async (page) => {
+export const testForBlocks = async (page: Page) => {
     if (await accessDenied(page)) {
-        throw '[BLOCKED]: Got access denied';
+        throw new Error('[BLOCKED]: Got access denied');
     }
     if (await distilCaptcha(page)) {
-        throw '[BLOCKED]: Found Distil Captcha';
+        throw new Error('[BLOCKED]: Found Distil Captcha');
     }
     if (await recaptcha(page)) {
-        throw '[BLOCKED]: Found Google ReCaptcha';
+        throw new Error('[BLOCKED]: Found Google ReCaptcha');
     }
 };
