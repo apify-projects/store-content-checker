@@ -1,14 +1,17 @@
-const Apify = require('apify');
+import { log, Actor } from 'apify';
 
-const { log } = Apify.utils;
+import type { Page } from 'puppeteer';
 
-const sendMailOnError = async (sendNotificationTo, url, fullPageScreenshot, errorMessage) => {
+import { MAX_ATTACHMENT_SIZE_BYTES } from './consts.js';
+import type { Input } from './main.js';
+
+const sendMailOnError = async (sendNotificationTo: string, url: string, fullPageScreenshot: Buffer | undefined, errorMessage: string) => {
     log.info('Sending mail with the info about Error on the page...');
-    await Apify.call('apify/send-mail', {
+    await Actor.call('apify/send-mail', {
         to: sendNotificationTo,
         subject: 'Apify content checker - Error!',
         text: `URL: ${url}\n ${errorMessage}`,
-        attachments: fullPageScreenshot
+        attachments: fullPageScreenshot && fullPageScreenshot.toString('base64').length < MAX_ATTACHMENT_SIZE_BYTES
             ? [
                 {
                     filename: 'fullpageScreenshot.png',
@@ -20,11 +23,11 @@ const sendMailOnError = async (sendNotificationTo, url, fullPageScreenshot, erro
     });
 };
 
-module.exports.screenshotDOMElement = async (page, selector, padding = 0) => {
+export const screenshotDOMElement = async (page: Page, selector: string, padding = 0) => {
     const rect = await page.evaluate((sel) => {
         const element = document.querySelector(sel);
-        const { x, y, width, height } = element.getBoundingClientRect();
-        return { left: x, top: y, width, height, id: element.id };
+        const { x, y, width, height } = element!.getBoundingClientRect();
+        return { left: x, top: y, width, height, id: element!.id };
     }, selector);
 
     return page.screenshot({
@@ -39,7 +42,7 @@ module.exports.screenshotDOMElement = async (page, selector, padding = 0) => {
     });
 };
 
-module.exports.validateInput = (input) => {
+export const validateInput = (input: Input) => {
     // check inputs
     if (!input || !input.url || !input.contentSelector || !input.sendNotificationTo) {
         throw new Error('Invalid input, must be a JSON object with the '
@@ -47,12 +50,20 @@ module.exports.validateInput = (input) => {
     }
 };
 
-module.exports.handleFailedAndThrow = async ({ type, fullPageScreenshot, informOnError, sendNotificationTo, url }) => {
+interface HandleFailedAndThrowOptions {
+    type: string;
+    fullPageScreenshot?: Buffer;
+    informOnError: string;
+    sendNotificationTo: string;
+    url: string;
+}
+
+export const handleFailedAndThrow = async ({ type, fullPageScreenshot, informOnError, sendNotificationTo, url }: HandleFailedAndThrowOptions) => {
     let errorMessage = `Cannot get ${type} (${type} selector is probably wrong).`;
     if (fullPageScreenshot) {
-        await Apify.setValue('fullpageScreenshot.png', fullPageScreenshot, { contentType: 'image/png' });
+        await Actor.setValue('fullpageScreenshot.png', fullPageScreenshot, { contentType: 'image/png' });
         // SENDING EMAIL WITH THE INFO ABOUT ERROR AND FULL PAGE SCREENSHOT
-        const storeId = Apify.getEnv().defaultKeyValueStoreId;
+        const storeId = Actor.getEnv().defaultKeyValueStoreId;
         errorMessage = `${errorMessage}`
             + `\nMade screenshot of the full page instead: `
             + `\nhttps://api.apify.com/v2/key-value-stores/${storeId}/records/fullpageScreenshot.png`;
@@ -65,7 +76,14 @@ module.exports.handleFailedAndThrow = async ({ type, fullPageScreenshot, informO
     throw errorMessage;
 };
 
-module.exports.createSlackMessage = ({ url, previousData, content, store }) => {
+interface CreateSlackMessageOptions {
+    url: string;
+    previousData: string;
+    content: string;
+    kvStoreId: string;
+}
+
+export const createSlackMessage = ({ url, previousData, content, kvStoreId }: CreateSlackMessageOptions) => {
     return {
         text: '',
         blocks: [
@@ -90,7 +108,7 @@ module.exports.createSlackMessage = ({ url, previousData, content, store }) => {
                     text: 'image1',
                     emoji: true,
                 },
-                image_url: `https://api.apify.com/v2/key-value-stores/${store.storeId}/records/currentScreenshot.png`,
+                image_url: `https://api.apify.com/v2/key-value-stores/${kvStoreId}/records/currentScreenshot.png`,
                 alt_text: 'image1',
             },
             {
@@ -101,7 +119,8 @@ module.exports.createSlackMessage = ({ url, previousData, content, store }) => {
                 elements: [
                     {
                         type: 'mrkdwn',
-                        text: ':question: The message was generated using Apify app. You can unsubscribe these messages from the channel with "/apify list subscribe" command.',
+                        text: ':question: The message was generated using Apify app. '
+                            + 'You can unsubscribe these messages from the channel with "/apify list subscribe" command.',
                     },
                 ],
             },
