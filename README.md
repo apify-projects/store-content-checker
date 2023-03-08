@@ -36,4 +36,4 @@ Here's an example of an email notification with previous data, changed data, and
 
 ## Changelog
 
-Keep up with recent fixes and new features by reading the [Changelog](https://github.com/apify/actor-content-checker/blob/master/CHANGELOG.md).
+Keep up with recent fixes and new features by reading the [Changelog](https://github.com/apify/actor-content-checker/blob/master/CHANGELOG.md). 
