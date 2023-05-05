@@ -40,7 +40,7 @@ Content checker doesn’t exactly do what you need? You can always build your ow
 
 Or let us know if you need a [custom scraping solution](https://apify.com/custom-solutions).
 
-## **Your feedback**
+## Your feedback
 
 We’re always working on improving the performance of our Actors. So if you’ve got any technical feedback for Facebook Hashtag Scraper or simply found a bug, please create an issue on the Actor’s [Issues tab](https://console.apify.com/actors/ctMjXHGFjGPwBzCrq/issues) in Apify Console.
 ## Changelog
