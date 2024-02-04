@@ -1,10 +1,10 @@
 import { Actor, log } from 'apify';
-import { sleep, PuppeteerCrawler } from 'crawlee';
 import type { ProxyConfigurationOptions } from 'apify';
+import { sleep, PuppeteerCrawler } from 'crawlee';
 
-import { handleFailedAndThrow, screenshotDOMElement, validateInput, createSlackMessage } from './utils.js';
 import { testForBlocks } from './check-captchas.js';
 import { MAX_ATTACHMENT_SIZE_BYTES } from './consts.js';
+import { handleFailedAndThrow, screenshotDOMElement, validateInput, createSlackMessage } from './utils.js';
 
 export interface Input {
     url: string;
@@ -52,7 +52,7 @@ const store = await Actor.openKeyValueStore(storeName);
 const previousScreenshot = await store.getValue('currentScreenshot.png') as Buffer | undefined;
 const previousData = await store.getValue('currentData') as string | undefined;
 
-// Residentials would be useful but we don't want everyone to bother us with those
+// RESIDENTIAL proxy would be useful, but we don't want everyone to bother us with those
 const proxyConfiguration = await Actor.createProxyConfiguration(proxy);
 
 const requestQueue = await Actor.openRequestQueue();
@@ -88,7 +88,7 @@ const crawler = new PuppeteerCrawler({
         // wait 5 seconds (if there is some dynamic content)
         // TODO: this should wait for the selector to be available
         log.info('Sleeping 5s ...');
-        await sleep(5000);
+        await sleep(5_000);
 
         try {
             await injectJQuery();
@@ -186,7 +186,7 @@ if (previousScreenshot === null) {
 
         const notificationNote = sendNotificationText ? `Note: ${sendNotificationText}\n\n` : '';
 
-        // create slack message used by Apify slack integration
+        // create Slack message used by Apify slack integration
         const message = createSlackMessage({ url, previousData: previousData!, content: content!, kvStoreId: store.id });
         await Actor.setValue('SLACK_MESSAGE', message);
 

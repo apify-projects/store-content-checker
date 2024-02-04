@@ -1,6 +1,5 @@
 /* global $ */
 import { log } from 'apify';
-
 import type { Page } from 'puppeteer';
 
 const distilCaptcha = async (page: Page) => {
@@ -20,9 +19,10 @@ const recaptcha = async (page: Page) => {
         const backGroundCaptchaEl = $('iframe[src*="/recaptcha/"]');
         const isCaptchaDisabledInEval = backGroundCaptchaEl.attr('style')
             && backGroundCaptchaEl.attr('style')!.includes('display: none');
-        const isCaptchaActive = backGroundCaptchaEl.length > 0 && !isCaptchaDisabledInEval;
+        // const isCaptchaActive = backGroundCaptchaEl.length > 0 && !isCaptchaDisabledInEval;
         return {
-            blocked: $('#recaptcha').length > 0 || isCaptchaActive,
+            blocked: $('#recaptcha').length > 0,
+            // blocked: $('#recaptcha').length > 0 || isCaptchaActive,
             isCaptchaDisabled: isCaptchaDisabledInEval,
         };
     });
