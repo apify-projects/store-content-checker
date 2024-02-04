@@ -17,13 +17,14 @@ const accessDenied = async (page: Page) => {
 const recaptcha = async (page: Page) => {
     const { blocked, isCaptchaDisabled } = await page.evaluate(() => {
         const backGroundCaptchaEl = $('iframe[src*="/recaptcha/"]');
-        const isCaptchaDisabledInEval = backGroundCaptchaEl.attr('style')
-            && backGroundCaptchaEl.attr('style')!.includes('display: none');
+        // const isCaptchaDisabledInEval = backGroundCaptchaEl.attr('style')
+        //     && backGroundCaptchaEl.attr('style')!.includes('display: none');
         // const isCaptchaActive = backGroundCaptchaEl.length > 0 && !isCaptchaDisabledInEval;
         return {
             blocked: $('#recaptcha').length > 0,
             // blocked: $('#recaptcha').length > 0 || isCaptchaActive,
-            isCaptchaDisabled: isCaptchaDisabledInEval,
+            isCaptchaDisabled: backGroundCaptchaEl.length > 0,
+            // isCaptchaDisabled: isCaptchaDisabledInEval,
         };
     });
 
