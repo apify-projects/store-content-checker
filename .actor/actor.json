@@ -1,0 +1,7 @@
+{
+	"actorSpecification": 1,
+	"name": "store-content-checker",
+	"version": "0.0",
+	"buildTag": "latest",
+	"environmentVariables": {}
+}

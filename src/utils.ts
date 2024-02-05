@@ -1,5 +1,4 @@
 import { log, Actor } from 'apify';
-
 import type { Page } from 'puppeteer';
 
 import { MAX_ATTACHMENT_SIZE_BYTES } from './consts.js';
