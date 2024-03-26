@@ -18,13 +18,13 @@
         "@typescript-eslint/eslint-plugin": "^5.62.0",
         "@typescript-eslint/parser": "^5.62.0",
         "eslint": "^8.56.0",
-        "ts-node": "^10.9.2",
+        "tsx": "^4.6.2",
         "typescript": "^5.3.3"
     },
     "scripts": {
         "start": "npm run start:dev",
         "start:prod": "node dist/main.js",
-        "start:dev": "ts-node-esm -T src/main.ts",
+        "start:dev": "tsx src/main.ts",
         "build": "tsc",
         "lint": "eslint ./src --ext .ts",
         "lint:fix": "eslint ./src --ext .ts --fix",

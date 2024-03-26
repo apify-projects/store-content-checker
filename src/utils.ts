@@ -41,11 +41,10 @@ export const screenshotDOMElement = async (page: Page, selector: string, padding
     });
 };
 
-export const validateInput = (input: Input) => {
+export const validateInput = async (input: Input) => {
     // check inputs
-    if (!input || !input.url || !input.contentSelector || !input.sendNotificationTo) {
-        throw new Error('Invalid input, must be a JSON object with the '
-            + '"url", "contentSelector", "screenshotSelector" and "sendNotificationTo" field!');
+    if (!input || !input.url || !input.contentSelector) {
+        await Actor.fail('Invalid input: Input must be a JSON object with the "url" and "contentSelector" fields!');
     }
 };
 
@@ -72,7 +71,7 @@ export const handleFailedAndThrow = async ({ type, fullPageScreenshot, informOnE
     }
 
     // We use simple string throw deliberately so users are not bothered with stack traces
-    throw errorMessage;
+    await Actor.fail(errorMessage);
 };
 
 interface CreateSlackMessageOptions {

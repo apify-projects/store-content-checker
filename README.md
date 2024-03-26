@@ -30,9 +30,12 @@ Here's an example of an email notification with previous data, changed data, and
 
 Content Checker can be connected with almost any cloud service or web app thanks to [integrations on the Apify platform]([https://apify.com/integrations](https://apify.com/integrations)). Integrate with Make, Zapier, Slack, Airbyte, GitHub, Google Sheets, Google Drive, and more. Or you can use webhooks to carry out an action whenever an event occurs, e.g. get a notification whenever Content Checker successfully finishes a run.
 
+### Send notification on change only
+If you only want to get a notification on change and don't want to use a direct email via `sendNotificationTo` input field, you can utilize the fact that a dataset item is pushed on change. Go to monitoring and set up an alert that will trigger if more than 0 items are pushed to dataset. That happens only when content changes.
+
 ## Using Content Checker with the Apify API
 
-The Apify API gives you programmatic access to the Apify platform. The API is organized around RESTful HTTP endpoints that enable you to manage, schedule, and run Apify actors. The API also lets you access any datasets, monitor actor performance, fetch results, create and update versions, and more. To access the API using Node.js, use the apify-client NPM package. To access the API using Python, use the apify-client PyPI package.Check out the [Apify API reference]([https://docs.apify.com/api/v2](https://docs.apify.com/api/v2)) docs for full details or click on the [API tab](https://apify.com/jakubbalada/content-checker/api) for code examples.
+The Apify API gives you programmatic access to the Apify platform. The API is organized around RESTful HTTP endpoints that enable you to manage, schedule, and run Apify actors. The API also lets you access any datasets, monitor actor performance, fetch results, create and update versions, and more. To access the API using Node.js, use the apify-client NPM package. To access the API using Python, use the apify-client PyPI package. Check out the [Apify API reference]([https://docs.apify.com/api/v2](https://docs.apify.com/api/v2)) docs for full details or click on the [API tab](https://apify.com/jakubbalada/content-checker/api) for code examples.
 
 ## Not your cup of tea? Build your own scraper.
 

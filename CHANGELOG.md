@@ -1,3 +1,8 @@
+## 2024-03-26
+*Features*
+- Push info item to the dataset on changed content. This can be used to trigger monitoring notifications.
+- `sendNotificationTo` email is now optional because you can use monitoring to send notifications.
+
 ## 2021-06-09
 *Features*
 - Added "smart" retrying logic when being blocked

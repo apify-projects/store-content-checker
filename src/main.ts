@@ -22,7 +22,7 @@ export interface Input {
 await Actor.init();
 
 const input = await Actor.getInput() as Input;
-validateInput(input);
+await validateInput(input);
 
 const {
     url,
@@ -190,34 +190,46 @@ if (previousScreenshot === null) {
         const message = createSlackMessage({ url, previousData: previousData!, content: content!, kvStoreId: store.id });
         await Actor.setValue('SLACK_MESSAGE', message);
 
-        // send mail
-        log.info('Sending mail...');
+        await Actor.pushData({
+            url,
+            previousData,
+            content,
+            previousScreenshotUrl: store.getPublicUrl('previousScreenshot.png'),
+            currentScreenshotUrl: store.getPublicUrl('currentScreenshot.png'),
+            sendNotificationTo,
+        });
 
-        const previousScreenshotBase64 = previousScreenshot!.toString('base64');
-        const currentScreenshotBase64 = screenshotBuffer!.toString('base64');
+        if (sendNotificationTo) {
+            log.info(`Sending mail to ${sendNotificationTo}...`);
 
-        let text = `URL: ${url}\n\n${notificationNote}Previous data: ${previousData}\n\nCurrent data: ${content}`;
-        const attachments = [];
-        if (previousScreenshotBase64.length + currentScreenshotBase64.length < MAX_ATTACHMENT_SIZE_BYTES) {
-            attachments.push({
-                filename: 'previousScreenshot.png',
-                data: previousScreenshotBase64,
-            });
-            attachments.push({
-                filename: 'currentScreenshot.png',
-                data: currentScreenshotBase64,
+            const previousScreenshotBase64 = previousScreenshot!.toString('base64');
+            const currentScreenshotBase64 = screenshotBuffer!.toString('base64');
+
+            let text = `URL: ${url}\n\n${notificationNote}Previous data: ${previousData}\n\nCurrent data: ${content}`;
+            const attachments = [];
+            if (previousScreenshotBase64.length + currentScreenshotBase64.length < MAX_ATTACHMENT_SIZE_BYTES) {
+                attachments.push({
+                    filename: 'previousScreenshot.png',
+                    data: previousScreenshotBase64,
+                });
+                attachments.push({
+                    filename: 'currentScreenshot.png',
+                    data: currentScreenshotBase64,
+                });
+            } else {
+                log.warning(`Screenshots are bigger than ${MAX_ATTACHMENT_SIZE_BYTES}, not sending them as part of email attachment.`);
+                text += `\n\nScreenshots are bigger than ${MAX_ATTACHMENT_SIZE_BYTES}, not sending them as part of email attachment.`;
+            }
+
+            await Actor.call('apify/send-mail', {
+                to: sendNotificationTo,
+                subject: 'Apify content checker - page changed!',
+                text,
+                attachments,
             });
         } else {
-            log.warning(`Screenshots are bigger than ${MAX_ATTACHMENT_SIZE_BYTES}, not sending them as part of email attachment.`);
-            text += `\n\nScreenshots are bigger than ${MAX_ATTACHMENT_SIZE_BYTES}, not sending them as part of email attachment.`;
+            log.warning('No e-mail address provided, email notification skipped');
         }
-
-        await Actor.call('apify/send-mail', {
-            to: sendNotificationTo,
-            subject: 'Apify content checker - page changed!',
-            text,
-            attachments,
-        });
     }
 }
 log.info('You can check the output in the named key-value store on the following URLs:');
