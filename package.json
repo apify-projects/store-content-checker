@@ -7,28 +7,33 @@
         "node": ">=18.0.0"
     },
     "dependencies": {
-        "apify": "^3.0.0",
-        "crawlee": "^3.0.0",
-        "puppeteer": "*"
+        "apify": "^3.4.2",
+        "crawlee": "^3.13.8",
+        "puppeteer": "24.12.1"
     },
     "devDependencies": {
-        "@apify/eslint-config-ts": "^0.4.1",
-        "@apify/tsconfig": "^0.1.0",
-        "@types/jquery": "^3.5.29",
-        "@typescript-eslint/eslint-plugin": "^5.62.0",
-        "@typescript-eslint/parser": "^5.62.0",
-        "eslint": "^8.56.0",
-        "tsx": "^4.6.2",
-        "typescript": "^5.3.3"
+        "@apify/eslint-config": "^1.0.0",
+        "@apify/tsconfig": "^0.1.1",
+        "@types/jquery": "^3.5.33",
+        "@types/node": "^22.15.32",
+        "eslint": "^9.29.0",
+        "eslint-config-prettier": "^10.1.5",
+        "globals": "^16.2.0",
+        "prettier": "^3.5.3",
+        "tsx": "^4.20.3",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.34.1"
     },
     "scripts": {
         "start": "npm run start:dev",
         "start:prod": "node dist/main.js",
         "start:dev": "tsx src/main.ts",
         "build": "tsc",
-        "lint": "eslint ./src --ext .ts",
-        "lint:fix": "eslint ./src --ext .ts --fix",
-        "test": "echo \"Error: oops, the actor has no tests yet, sad!\" && exit 1"
+        "lint": "eslint",
+        "lint:fix": "eslint --fix",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "test": "echo \"Error: oops, the Actor has no tests yet, sad!\" && exit 1"
     },
     "author": "It's not you it's me",
     "license": "ISC"
